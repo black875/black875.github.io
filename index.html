@@ -1,123 +1,206 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <title>Badge Creator</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="css/styles.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ファイル送信テスト (Webhook.site)</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f9fafb;
+      color: #333;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 1.25rem;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 10px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+    }
+    input[type="text"], input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 1rem;
+    }
+    .file-info {
+      background-color: #f3f4f6;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .file-info.active {
+      display: block;
+    }
+    .error-text {
+      color: #dc2626;
+      font-weight: bold;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #1d4ed8;
+    }
+    button:disabled {
+      background-color: #9ca3af;
+      cursor: not-allowed;
+    }
+    #result {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .result-success { background-color: #d1fae5; color: #065f46; display: block !important; }
+    .result-error { background-color: #fee2e2; color: #991b1b; display: block !important; }
+  </style>
 </head>
-
 <body>
 
-    <!-- View: List -->
-    <div id="listView">
-        <div class="controls-column-full">
-            <h4 class="mb-3"><i class="bi bi-people-fill me-2"></i>Staff List</h4>
-            <div class="d-flex flex-wrap gap-2 mb-3">
-                <button class="btn btn-primary" id="addPersonBtn"><i class="bi bi-plus-circle me-1"></i> Add
-                    New</button>
-                <button class="btn btn-success" id="printAllBtn"><i class="bi bi-printer me-1"></i> Print All</button>
-                <button class="btn btn-info" id="exportCsvBtn"><i class="bi bi-download me-1"></i> Export CSV</button>
-                <label class="btn btn-info mb-0"><i class="bi bi-upload me-1"></i> Import CSV
-                    <input type="file" id="importCsvInput" class="d-none" accept=".csv">
-                </label>
-                <button class="btn btn-warning" id="clearDataBtn"><i class="bi bi-trash me-1"></i> Reset</button>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Position</th>
-                            <th>Employee ID</th>
-                            <th>Password</th>
-                            <th class="text-end">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="personList">
-                        <!-- Person list will be rendered here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
+  <div class="container">
+    <h2>📤 Webhook.site 送信テスト</h2>
+    
+    <div class="form-group">
+      <label for="webhookUrl">1. Webhook.siteのURL (Your unique URL)</label>
+      <input type="text" id="webhookUrl" placeholder="https://webhook.site/xxxx-xxxx-xxxx" required>
     </div>
 
-    <!-- View: Edit -->
-    <div id="editView" class="d-none">
-        <div class="main-container">
-            <div class="preview-column">
-                <div class="badge-wrapper" id="badgeWrapper">
-                    <img src="test.png" class="badge-img">
-                    <div class="editable" id="position"></div>
-                    <div class="editable" id="name"></div>
-                    <div class="editable barcode" id="barcode"></div>
-                </div>
-            </div>
-            <div class="controls-column">
-                <h4 class="mb-3" id="editViewTitle">Edit Badge Details</h4>
-                <hr>
-                <div class="mb-3">
-                    <label for="positionInput" class="form-label">Position</label>
-                    <input type="text" id="positionInput" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label for="nameInput" class="form-label">Name</label>
-                    <input type="text" id="nameInput" class="form-control">
-                </div>
-                <hr>
-                <h5 class="h6">Barcode Info</h5>
-                <div class="mb-3">
-                    <label for="employeeIdInput" class="form-label">Employee ID</label>
-                    <input type="text" id="employeeIdInput" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label for="passwordInput" class="form-label">Password</label>
-                    <input type="password" id="passwordInput" class="form-control">
-                </div>
-                <hr>
-                <h5 class="h6 d-none">Text Style</h5>
-                <div class="mb-3 d-none">
-                    <label for="fontFamily" class="form-label">Font</label>
-                    <select id="fontFamily" class="form-select">
-                        <option value="'MS Gothic', sans-serif">MS Gothic</option>
-                        <option value="'MS Mincho', serif">MS Mincho</option>
-                        <option value="sans-serif">Sans-Serif</option>
-                        <option value="serif">Serif</option>
-                    </select>
-                </div>
-                <div class="mb-3 d-none">
-                    <label for="fontSize" class="form-label">Font Size (px)</label>
-                    <input type="number" id="fontSize" class="form-control" min="1" step="1">
-                </div>
-                <!-- <hr> -->
-                <div class="d-grid gap-2">
-                    <button class="btn btn-primary" id="saveAndExitBtn"><i class="bi bi-save me-1"></i> Save &
-                        Return</button>
-                    <button class="btn btn-secondary" id="cancelBtn"><i class="bi bi-x-circle me-1"></i> Cancel</button>
-                </div>
-            </div>
-        </div>
+    <div class="form-group">
+      <label for="fileInput">2. テストするファイルを選択</label>
+      <input type="file" id="fileInput" required>
     </div>
 
-    <!-- Print Container (Hidden) -->
-    <div id="printContainer" class="d-none"></div>
+    <div id="fileInfo" class="file-info">
+      <strong>【選択されたファイル情報】</strong>
+      <ul style="margin: 8px 0 0; padding-left: 20px;">
+        <li>名前: <span id="fileName"></span></li>
+        <li>サイズ: <span id="fileSize"></span></li>
+        <li>種類: <span id="fileType"></span></li>
+      </ul>
+    </div>
 
-    <!-- External Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+    <button id="sendBtn" disabled>送信する</button>
 
-    <!-- Application Scripts -->
-    <script type="module">
-        import { BadgeCreatorApp } from './js/app.js';
+    <div id="result"></div>
+  </div>
 
-        document.addEventListener('DOMContentLoaded', () => {
-            new BadgeCreatorApp();
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const webhookUrlInput = document.getElementById('webhookUrl');
+    const sendBtn = document.getElementById('sendBtn');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileNameSpan = document.getElementById('fileName');
+    const fileSizeSpan = document.getElementById('fileSize');
+    const fileTypeSpan = document.getElementById('fileType');
+    const resultDiv = document.getElementById('result');
+
+    // ファイル選択時の処理（情報の表示とボタンの活性化）
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      resultDiv.style.display = 'none';
+      resultDiv.className = '';
+      
+      if (file) {
+        fileNameSpan.textContent = file.name;
+        fileTypeSpan.textContent = file.type || '不明';
+        
+        // サイズが0バイトの場合は赤字で警告
+        if (file.size === 0) {
+          fileSizeSpan.innerHTML = '<span class="error-text">0 バイト (読込失敗の可能性あり)</span>';
+        } else {
+          fileSizeSpan.textContent = `${file.size} バイト`;
+        }
+        
+        fileInfo.classList.add('active');
+        checkForm();
+      } else {
+        fileInfo.classList.remove('active');
+        sendBtn.disabled = true;
+      }
+    });
+
+    // URL入力時の処理
+    webhookUrlInput.addEventListener('input', checkForm);
+
+    function checkForm() {
+      const url = webhookUrlInput.value.trim();
+      const file = fileInput.files[0];
+      // URLが入力されており、かつファイルが選択されている場合のみボタンを有効化
+      sendBtn.disabled = !(url.startsWith('https://webhook.site/') && file);
+    }
+
+    // 送信ボタンクリック時の処理
+    sendBtn.addEventListener('click', async () => {
+      const url = webhookUrlInput.value.trim();
+      const file = fileInput.files[0];
+
+      if (!file) return;
+
+      // 送信データの準備 (multipart/form-data)
+      const formData = new FormData();
+      formData.append('testFile', file);
+      formData.append('message', 'ブラウザからの直接送信テストです');
+
+      sendBtn.disabled = true;
+      sendBtn.textContent = '送信中...';
+      resultDiv.className = '';
+      resultDiv.textContent = '';
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          body: formData,
+          // fetchにFormDataを渡す場合、Content-Typeヘッダーはブラウザが自動設定(boundary付き)するため指定しません
         });
-    </script>
-</body>
 
-</html> 
+        if (response.ok) {
+          resultDiv.textContent = '✅ 送信成功！Webhook.siteの画面を確認してください。';
+          resultDiv.className = 'result-success';
+        } else {
+          resultDiv.textContent = `❌ 送信エラー: ${response.status} ${response.statusText}`;
+          resultDiv.className = 'result-error';
+        }
+      } catch (error) {
+        resultDiv.textContent = `❌ ネットワークエラー: ${error.message}`;
+        resultDiv.className = 'result-error';
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = '送信する';
+      }
+    });
+  </script>
+</body>
+</html>
